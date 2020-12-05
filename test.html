@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/vue.js"></script>
+    <style>
+        @font-face {
+            font-family: 'icomoon';
+            src:  url('fonts/icomoon.eot?a8j99w');
+            src:  url('fonts/icomoon.eot?a8j99w#iefix') format('embedded-opentype'),
+            url('fonts/icomoon.ttf?a8j99w') format('truetype'),
+            url('fonts/icomoon.woff?a8j99w') format('woff'),
+            url('fonts/icomoon.svg?a8j99w#icomoon') format('svg');
+            font-weight: normal;
+            font-style: normal;
+            font-display: block;
+        }
+        span {
+            font-family: 'icomoon';
+            font-size: 100px;
+            color: #3a8ee6;
+        }
+    </style>
+</head>
+<body>
+<h1>hello</h1>
+    <div id="app">
+        <h1>world</h1>
+        <div @click="isArray" style="background-color: red;width: 50px;height: 50px"></div>
+        <div @click="jsonp" style="background-color: pink;width: 50px;height: 50px"></div>
+    </div>
+    <span>    </span>
+<script>
+    new Vue({
+        el: '#app',
+        data () {
+            return {
+                divWidth: 0,
+                divHeight: 0,
+            }
+        },
+        methods:{
+            isArray() {
+                let arr = [1,2,3,4]
+                console.log(typeof arr )
+            },
+            jsonp(){
+                let script = document.createElement('script')
+                script.setAttribute('src','https://www.runoob.com/try/ajax/jsonp.php')
+                script.type = 'text/javascript';
+                script.charset = 'UTF-8';
+                script.id = 'my_script'
+
+                if (script.addEventListener) {
+                    script.addEventListener('load', function (res) {
+                        console.log(res)
+                        console.log('load...')
+                    }, false);
+                } else if (script.attachEvent) {
+                    script.attachEvent('onreadystatechange', function (res2) {
+                        let target = window.event.srcElement;
+                        if (target.readyState == 'loaded') {
+                            console.log(res2)
+                            console.log('load...')
+                        }
+                    });
+                }
+
+                document.getElementsByTagName('head')[0].appendChild(script)
+
+
+            },
+        }
+    })
+
+    document.onselect = function (event) {
+        console.log(event)
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=8,IE=9,IE=10"/>
+    <meta http-equiv="Expires" content="0">
+    <meta http-equiv="Cache-Control" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-store">
+    <title>Title</title>
+    <script src="js/vue.js" type="text/javascript"></script>
+    <script src="js/element-ui/lib/index.js" type="text/javascript"></script>
+    <script src="js/axios.js" type="text/javascript"></script>
+    <link href="js/element-ui/lib/theme-chalk/index.css" rel="stylesheet"/>
+    <link href="requester.css" rel="stylesheet">
+    <script src="js/data.js" type="text/javascript"></script>
+
+    <!-- <script src="/static/vue/element-ui-2.12.0/vue.js"></script>
+    <script src="/static/vue/element-ui-2.12.0/index.js" type="text/javascript"></script>
+    <script src="/static/vue/axios.min.js" type="text/javascript"></script>
+    <link href="/static/vue/element-ui-2.12.0/index.css" rel="stylesheet"/>
+    <link href="/static/crm/requester.css" rel="stylesheet"> -->
+</head>
+
+<body>
+
+<div id="app">
+    <template>
+        <div :style="{'height':topBar+'px'}">X:{{clientX}},Y:{{clientY}}<br>
+            centerPointer:[{{centerPointerX}},{{centerPointerY}}]
+        </div>
+
+        <el-row>
+            <!-- 左半栏框 -->
+            <el-col :span="12">
+                <div id="reqArea" class="left-button-area" :style="{'height':jobReqHeight+'px'}">
+                    <el-scrollbar :style="{'min-height':jobReqHeight+'px','height':jobReqHeight+'px'}">
+                        <el-tooltip placement="right" v-for="(value,index) in buttonsNames" :key="index" effect="light" open-delay="500"	>
+                            <div slot="content" class="info-main">
+                                <b>URL:</b>{{buttonsUrls[index]}}<br/>
+                                <b>RequestMethod:</b>{{wayEnums[buttonsWay[index]].toUpperCase()}}<br/>
+                                <span v-if="buttonsParams[index]"><b>Params:</b>{{buttonsParams[index]}}<br/></span>
+                            </div>
+                        <el-button type="primary"
+                                   @click="buttonQuery(index)" @mouseover.native="reqBtnOver(index)"
+                                   @mouseout.native="reqBtnOut" class="buttonA">{{value}}
+                        </el-button>
+                        </el-tooltip>
+                    </el-scrollbar>
+                </div>
+                <div id="addReq" class="new-area" :style="{'min-height':jobAddHeight+'px'}">
+                    <el-button class="new-btn" @click="newForm">新增请求</el-button>
+                </div>
+            </el-col>
+
+            <!-- 右半栏日志框 -->
+            <el-col :span="12">
+                <div :style="{'height':rightJobHeight+'px'}" class="right-output collapseItem">
+                    <el-scrollbar :style="{'min-height':rightJobHeight+'px','height':rightJobHeight+'px'}">
+                        <!-- 输出日志 -->
+                        <div v-if="saveRecord == false" style="color: #748383;">输出日志...</div>
+                        <!-- 真实的日志输出 折叠面板-->
+                        <el-collapse v-model="activeCollapse" accordion v-if="saveRecord != false" @change="recentLook">
+                            <div v-for="(one,index) in saveRecord" :key="index">
+                                <!-- style="border-bottom: 1px solid #EBEEF5;" -->
+                                <el-collapse-item :name="index" style="margin-bottom: 20px;">
+                                    <template slot="title">
+                                        <!-- 状态圆点 -->
+                                        <div class="status-point" :class="getStatus(index)"></div>
+                                        <!-- 状态码 时间 状态文案 -->
+                                        <b>{{saveRecordList[index].method}}</b>
+                                        <b
+                                                style="padding: 0px 10px;">{{saveRecordList[index].status}}</b>{{saveRecordList[index].time}}
+                                        <b style="padding-left: 10px;">{{saveRecordList[index].statusText}}</b>
+                                        <!-- 三角新标 -->
+                                        <template v-if="index === recentIndex">
+                                            <div class="triangle-left"></div>
+                                            <span style="color:#b8b8b8;margin-left: 10px">上次查看</span>
+                                        </template>
+                                    </template>
+                                    <div v-html="one" class="collapseDiv"></div>
+                                </el-collapse-item>
+                            </div>
+                        </el-collapse>
+                    </el-scrollbar>
+                </div>
+            </el-col>
+        </el-row>
+
+        <!-- 新增请求窗口 -->
+        <el-dialog :title="formActiveName" :visible.sync="dialogFormVisible" width="750px" :modal="false"
+                   :close-on-click-modal="false">
+            <el-form ref="form" :model="form" label-width="80px" size="mini">
+                <el-form-item label="请求标题">
+                    <el-input v-model="form.title" style="width:570px"></el-input>
+                </el-form-item>
+                <el-form-item label="请求URL">
+                    <el-input v-model="form.requestPath" style="width:570px"></el-input>
+                </el-form-item>
+            </el-form>
+            <!-- 写入方式 -->
+            <div class="el-form el-form--inline">
+                <span class="el-form-item__label"><b>请求方式</b></span>
+                <el-radio v-model="requestWay" label="0">GET</el-radio>
+                <el-radio v-model="requestWay" label="1">POST</el-radio>
+            </div>
+
+            <div v-if="!getDisable" class="el-form el-form--inline">
+                <span class="el-form-item__label"><b>解析方式</b></span>
+                <el-radio v-model="resolveWay" label="0">application/x-www-form-urlencoded</el-radio>
+                <el-radio v-model="resolveWay" label="1">application/json</el-radio>
+            </div>
+
+            <el-tabs v-model="activeName">
+                <el-tab-pane label="表单输入" name="first">
+                    <!-- 表单输入 -->
+                    <el-form :inline="true" :model="form" size="mini">
+                        <el-form-item label="UR号" :label-width="formLabelWidth">
+                            <el-input v-model="form.userNo" autocomplete="off" placeholder="用户号..."
+                                      style="width: 248px"></el-input>
+                        </el-form-item>
+                        <el-form-item label="CT号" :label-width="formLabelWidth">
+                            <el-input v-model="form.custNo" placeholder="客户号..." style="width: 248px;"></el-input>
+                        </el-form-item>
+                        <br>
+                        <el-form-item label="手机号" :label-width="formLabelWidth">
+                            <el-input v-model="form.mobileNo" placeholder="手机号..." style="width: 248px"></el-input>
+                        </el-form-item>
+                        <el-form-item label="身份证" :label-width="formLabelWidth">
+                            <el-input v-model="form.idCardNo" placeholder="身份证号..." style="width: 248px"></el-input>
+                        </el-form-item>
+                        <el-tooltip content="增加自定义键值对" placement="right-start" effect="light">
+                            <el-button size="small" icon="el-icon-plus" class="button-add" @click="addCustomerParam">
+                            </el-button>
+                        </el-tooltip>
+                        <br>
+                        <div v-for="(more,index) in form.moreKey" :key="index">
+                            <el-form-item label="key" :label-width="formLabelWidth">
+                                <el-input v-model="form.moreKey[index]" placeholder="自定义参数名" style="width: 248px">
+                                </el-input>
+                            </el-form-item>
+                            <el-form-item label="value" :label-width="formLabelWidth">
+                                <el-input v-model="form.moreValue[index]" placeholder="自定义参数值" style="width: 248px">
+                                </el-input>
+                            </el-form-item>
+                            <el-button size="small" icon="el-icon-minus" class="button-add"
+                                       @click="deleteCustomerParam(index)"></el-button>
+                        </div>
+                    </el-form>
+                </el-tab-pane>
+                <el-tab-pane label="原数据输入" name="second">
+                </el-tab-pane>
+            </el-tabs>
+            <br>
+            <!-- 预览窗口 -->
+            <el-form :inline="true" size="mini">
+                <el-form-item label="预览" :label-width="formLabelWidth">
+                    <el-input type="textarea" autosize placeholder="支持编辑，最终提交该文本作为入参，所见即所得" v-model="previewText"
+                              style="width: 580px">
+                    </el-input>
+                </el-form-item>
+            </el-form>
+            <div slot="footer">
+                <el-button @click="dialogFormVisible = false" class="button-cancel" size="small"
+                           style="border: 1px solid #5e6060;">取 消
+                </el-button>
+                <el-button @click="submitFrom()" class="button-submit" size="small" style="border: 1px solid #4c708c;">确
+                    定
+                </el-button>
+            </div>
+        </el-dialog>
+
+        <div id="btnMenu" v-if="reqMenu" :style="{'left':menuL,'top':menuT,'right':menuR,'bottom':menuB}">
+            <div class="sub-menu first-sub-menu" @click="reqBtnAlter" :class="{'disable':menuDisabled}">修改</div>
+            <div class="sub-menu" @click="reqBtnDel" :class="{'disable':menuDisabled}">删除</div>
+            <div class="sub-menu" @click="reqBtnCopy" :class="{'disable':menuDisabled}">Copy按钮</div>
+            <div class="sub-menu line-sub-menu" @click="versionShow = true">关于Version 0.0.0.1</div>
+        </div>
+        <div v-if="versionShow" class="version-about">
+            <h4>Requester
+                <div class="redClose" @click="versionShow = false"><span class="el-icon-close"></span></div>
+            </h4>
+            <h2>Requester</h2>
+            <h5>Alpha stg</h5>
+            <h6>Copyright &copy; 2020 Requester BY TomQi</h6>
+            <h6>Version 0.0.0.1, Build 0101</h6>
+        </div>
+    </template>
+</div>
+
+<script src="js/requester.js" type="text/javascript"></script>
+
+</body>
+
+</html>

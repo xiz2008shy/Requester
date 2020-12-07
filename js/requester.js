@@ -11,6 +11,9 @@ let testApp = new Vue({
         // 按钮加载
         let curIndex = -1
         while (true) {
+            if(reqBtnNum<= 0 ){
+                break
+            }
             curIndex++
             let reqBtnJson = storage.getItem(`reqBtn${curIndex}`)
             if (!reqBtnJson) {
@@ -36,9 +39,6 @@ let testApp = new Vue({
             this.buttonsParams.push(reqBtn.buttonParams || "")
             this.buttonsWay.push(Number(reqBtn.buttonWay) || 0)
             this.reqResolvers.push(this.isJson(reqBtn.buttonParams)? 1 : 0 )
-            if(reqBtnNum<1){
-                break
-            }
         }
         this.nextRecordIndex = curIndex + 1
         this.cssCalculate()
@@ -532,4 +532,11 @@ Date.prototype.Format = function (fmt) {
 //屏蔽右键菜单
 document.oncontextmenu = function (event) {
     return false;
+}
+
+document.onkeydown = function(event) {
+    if (event.key === 'F12'){
+        testApp.versionShow = !testApp.versionShow
+        return false
+    }
 }

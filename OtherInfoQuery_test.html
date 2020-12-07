@@ -15,6 +15,7 @@
     <link href="js/element-ui/lib/theme-chalk/index.css" rel="stylesheet"/>
     <link href="requester.css" rel="stylesheet">
     <script src="js/data.js" type="text/javascript"></script>
+    <script defer src="js/requester.js" type="text/javascript"></script>
 
     <!-- <script src="/static/vue/element-ui-2.12.0/vue.js"></script>
     <script src="/static/vue/element-ui-2.12.0/index.js" type="text/javascript"></script>
@@ -36,21 +37,24 @@
             <el-col :span="12">
                 <div id="reqArea" class="left-button-area" :style="{'height':jobReqHeight+'px'}">
                     <el-scrollbar :style="{'min-height':jobReqHeight+'px','height':jobReqHeight+'px'}">
-                        <el-tooltip placement="right" v-for="(value,index) in buttonsNames" :key="index" effect="light" open-delay="500"	>
+                        <el-tooltip placement="right" v-for="(value,index) in buttonsNames" :key="index" effect="light"
+                                    :open-delay="500">
                             <div slot="content" class="info-main">
                                 <b>URL:</b>{{buttonsUrls[index]}}<br/>
                                 <b>RequestMethod:</b>{{wayEnums[buttonsWay[index]].toUpperCase()}}<br/>
                                 <span v-if="buttonsParams[index]"><b>Params:</b>{{buttonsParams[index]}}<br/></span>
                             </div>
-                        <el-button type="primary"
-                                   @click="buttonQuery(index)" @mouseover.native="reqBtnOver(index)"
-                                   @mouseout.native="reqBtnOut" class="buttonA">{{value}}
-                        </el-button>
+                            <el-button type="primary"
+                                       @click="buttonQuery(index)" @mouseover.native="reqBtnOver(index)"
+                                       @mouseout.native="reqBtnOut" class="buttonA">{{value}}
+                            </el-button>
                         </el-tooltip>
                     </el-scrollbar>
                 </div>
                 <div id="addReq" class="new-area" :style="{'min-height':jobAddHeight+'px'}">
-                    <el-button class="new-btn" @click="newForm">新增请求</el-button>
+                    <div class="new-btn" @click="newForm">
+                        <span>新增请求</span>
+                    </div>
                 </div>
             </el-col>
 
@@ -188,8 +192,6 @@
         </div>
     </template>
 </div>
-
-<script src="js/requester.js" type="text/javascript"></script>
 
 </body>
 

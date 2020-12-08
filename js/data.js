@@ -32,6 +32,7 @@ let data = {
     halfWidth: '',
     formLabelWidth: '70px',
     menuDisabled: true,
+    drawerWidth: '450px',
 
     <!--表单数据 -->
     getDisable: true,
@@ -72,4 +73,8 @@ let data = {
     btnTipsShow: 'none',
     btnTipsTop:0,
     btnTipsLeft:0,
+
+    <!-- 侧边栏 -->
+    drawer: false,
+    basicUserQueryWay: '0'
 }

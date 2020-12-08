@@ -28,8 +28,10 @@
 
 <div id="app">
     <template>
-        <div :style="{'height':topBar+'px'}">X:{{clientX}},Y:{{clientY}}<br>
+        <div style="position: relative" :style="{'height':topBar+'px'}">X:{{clientX}},Y:{{clientY}}<br>
             centerPointer:[{{centerPointerX}},{{centerPointerY}}]
+
+            <div class="right-top-btn" @click="openSide">simpleData</div>
         </div>
 
         <el-row>
@@ -175,6 +177,22 @@
             </div>
         </el-dialog>
 
+
+        <el-drawer :visible.sync="drawer" direction="rtl" :show-close="false" :modal="false" :size="drawerWidth">
+            <div class="drawer-w">
+                <div>
+                    <h4 class="drawer-title">基础用户信息</h4>
+                    <el-radio-group v-model="basicUserQueryWay">
+                        <el-radio label="0">userNo</el-radio>
+                        <el-radio label="1">custNo</el-radio>
+                        <el-radio label="2">mobileNo</el-radio>
+                    </el-radio-group>
+                </div>
+                <input class="side-input" type="text" placeholder="请输入..."/>
+            </div>
+        </el-drawer>
+
+        <!-- 版本信息 -->
         <div id="btnMenu" v-if="reqMenu" :style="{'left':menuL,'top':menuT,'right':menuR,'bottom':menuB}">
             <div class="sub-menu first-sub-menu" @click="reqBtnAlter" :class="{'disable':menuDisabled}">修改</div>
             <div class="sub-menu" @click="reqBtnDel" :class="{'disable':menuDisabled}">删除</div>

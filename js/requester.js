@@ -250,6 +250,11 @@ let testApp = new Vue({
             this.requestWay = '0'
             this.resolveWay = '0'
         },
+        openSide(){
+            this.drawer = true
+        },
+
+
         buttonQuery(index) {
             let url = this.buttonsUrls[index]
             let reqWay = this.buttonsWay[index]
@@ -534,9 +539,10 @@ document.oncontextmenu = function (event) {
     return false;
 }
 
+/*
 document.onkeydown = function(event) {
     if (event.key === 'F12'){
         testApp.versionShow = !testApp.versionShow
         return false
     }
-}
+}*/

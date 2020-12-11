@@ -91,6 +91,7 @@ body {
     bottom: 0;
     padding: 0;
     font-size: 15px;
+    cursor: pointer;
 }
 
 .new-btn span {
@@ -98,7 +99,6 @@ body {
     text-align: center;
     line-height: 40px;
     font-size: 17px;
-    cursor: pointer;
     user-select:none;
 }
 
@@ -106,11 +106,22 @@ body {
     position: absolute;
     left: 10px;
     content: '\e906';
-    line-height: 45px;
+    line-height: 47px;
     font-family: 'icomoon';
     font-size: 20px;
     color: #c5c5c5;
     transition: left 1s;
+}
+
+.new-btn::after {
+    content: '';
+    position: absolute;
+    top: 33px;
+    left: 11px;
+    width: 0px;
+    height: 1px;
+    background-color: white;
+    transition: width 1s;
 }
 
 .new-btn:hover {
@@ -119,9 +130,15 @@ body {
     border: 1px solid transparent;
 }
 
+
 .new-btn:hover::before {
     left: 370px;
     color: #ecad00;
+}
+
+.new-btn:hover::after {
+    width: 362px;
+    background-color: #ecad00;
 }
 
 .right-top-btn {
@@ -152,26 +169,53 @@ body {
     margin-bottom: 10px;
 }
 
-.side-input {
-    padding-left: 20px;
+div .search {
+    display: block;
     margin-top: 15px;
-    width: 373px;
+    border-radius: 5px;
+}
+
+div .search::after {
+    content: '';
+    clear: both;
+    display: block;
+    visibility: hidden;
+}
+
+div .search:hover,div .search:focus {
+    border: 1px solid #c5c5c5;
+}
+
+.side-input {
+    float: left;
+    padding-left: 20px;
+    width: 285px;
     height: 30px;
     background-color: #45494a;
-    border-radius: 5px;
+    border-radius: 5px 0px 0px 5px;
     border: 1px solid transparent;
     outline: none;
     color: #c5c5c5;
     font-size: 13px;
 }
 
-.side-input:hover,.side-input:focus {
-    border: 1px solid #c5c5c5;
+.side-input-btn {
+    float: left;
+    width: 89px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    border-radius: 0px 5px 5px 0px;
+    border: 1px solid transparent;
+    background-color: #ecad00;
+    color: #1e1e1e;
+    cursor: pointer;
+    user-select: none;
 }
 
 
 input::placeholder {
-    color: #c5c5c5;
+    color: #9a9a9a;
 }
 
 .drawer-title {
